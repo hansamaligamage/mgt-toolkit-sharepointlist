@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <script src="https://unpkg.com/@microsoft/mgt/dist/bundle/mgt-loader.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    </head>
+    <body>
+        <mgt-msal-provider client-id="208e2462-3b67-4dba-8463-f05cc909b1a3" ></mgt-msal-provider>
+        <mgt-login></mgt-login>
+        <mgt-get resource="https://graph.microsoft.com/v1.0/sites/root/lists/aOSGiftsList/items?$filter=fields/Status eq 'Available'&$expand=fields" version="beta" scopes="sites.read.all" max-pages="2" 
+        polling-rate="5000">
+        <template data-type="value">
+          <div>
+              <div class="card" style="width: 40rem;">
+                <div class="card-body">
+                  <h4 class="card-title">{{fields.Title}}</h4>
+                  <h5 class="card-subtitle mb-2 text-muted">{{fields.Description}}</h5>
+                  <h6 class="card-text">{{fields.Quantity}} items for {{fields.Price}} SGD </h6>
+                  <p class="card-text">{{fields.ExpiryDate}}</p>
+                  <button onclick="changeStatus(this, '{{id}}')">Return Items</button>
+                  <br/>
+                </div>
+              </div>
+          </div>
+        </template>
+        <template data-type="loading">
+          loading
+        </template>
+        <template data-type="error">
+          {{ this.message }}
+        </template> 
+      </mgt-get>
+
+      <script>
+            let graphClient = mgt.Providers.globalProvider.graph.client;
+            function changeStatus (button, itemId){
+                const response = graphClient.api('/sites/root/lists/aOSGiftsList/items/' + itemId + '/fields')
+              //  .middlewareOptions(mgt.prepScopes('sites.readwrite.all'))
+                .update({Status : 'Returned'});
+                button.className = 'inactive';
+            }
+
+      </script>
+
+    </body>
+</html>
